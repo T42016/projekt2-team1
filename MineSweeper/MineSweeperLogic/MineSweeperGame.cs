@@ -28,6 +28,7 @@ namespace MineSweeperLogic
         public int NumberOfMines { get; }
         public GameState State { get; private set; }
         public IServiceBus Bus { get; }
+        private string symb;
 
         public PositionInfo PosInfo = new PositionInfo();
 
@@ -85,41 +86,59 @@ namespace MineSweeperLogic
         public void ResetBoard()
         {
             PosInfo = new PositionInfo();
+
+
         }
 
         public void DrawBoard()
         {
-
             for (int i = 0; i < SizeY; i++)
             {
                 for (int j = 0; j < SizeX; j++)
                 {
-
-
                     if (j == PosX && i == PosY)
                     {
-                        Bus.Write("? ", ConsoleColor.DarkCyan);
-
+                        if (GetCoordinate(j, i).IsFlagged)
+                            symb = "! ";
+                        else if (GetCoordinate(j, i).IsOpen)
+                        {
+                            if (GetCoordinate(j, i).HasMine)
+                                symb = "X ";
+                            else if (GetCoordinate(j, i).NrOfNeighbours == 0)
+                                symb = ". ";
+                            else
+                                symb = GetCoordinate(j, i).NrOfNeighbours + " ";
+                        }
+                        else
+                            symb = "? ";
+                        Bus.Write(symb, ConsoleColor.DarkCyan);
                     }
                     else
                     {
-                        Bus.Write("? ");
+                        if (GetCoordinate(j, i).IsFlagged)
+                            symb = "! ";
+                        else if (GetCoordinate(j, i).IsOpen)
+                        {
+                            if (GetCoordinate(j, i).HasMine)
+                                symb = "X ";
+                            else if (GetCoordinate(j, i).NrOfNeighbours == 0)
+                                symb = ". ";
+                            else
+                                symb = GetCoordinate(j, i).NrOfNeighbours + " ";
+                        }
+                        else
+                            symb = "? ";
+                        Bus.Write(symb);
                     }
                 }
-
                 Bus.WriteLine();
             }
-            Bus.Write("X ");
-            Bus.Write("! ");
-
-
-            if (PosInfo.IsFlagged)
-                Bus.Write("! ", ConsoleColor.DarkCyan);
         }
 
         #region MoveCursor Methods
 
-        public void MoveCursorUp()
+        public
+            void MoveCursorUp()
         {
             if (PosY > 0)
             {
