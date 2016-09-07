@@ -71,9 +71,9 @@ namespace MineSweeperLogic
                     }
                 }
 
-                Console.WriteLine();
+               Bus.WriteLine();
             }
-
+            Bus.Write("X ");
             Bus.Write("! "); 
         }
 
