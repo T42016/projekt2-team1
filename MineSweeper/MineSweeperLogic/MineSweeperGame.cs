@@ -28,7 +28,6 @@ namespace MineSweeperLogic
         public int NumberOfMines { get; }
         public GameState State { get; private set; }
         public IServiceBus Bus { get; }
-        ServiceBus sB = new ServiceBus();
 
         public PositionInfo GetCoordinate(int x, int y)
         {
@@ -54,6 +53,7 @@ namespace MineSweeperLogic
 
         public void DrawBoard()
         {
+            
             for (int i = 0; i < SizeY; i++)
             {
                 for (int j = 0; j < SizeX; j++)
@@ -62,19 +62,19 @@ namespace MineSweeperLogic
 
                     if (j == PosX && i == PosY)
                     {
-                        sB.Write("O ", ConsoleColor.Red);
+                        Bus.Write("? ", ConsoleColor.DarkCyan);
 
                     }
                     else
                     {
-                        sB.Write(". ", ConsoleColor.Blue);
+                        Bus.Write("? ");
                     }
                 }
 
                 Console.WriteLine();
             }
-            Bus.Write("! ");
 
+            Bus.Write("! "); 
         }
 
         #region MoveCursor Methods
