@@ -17,48 +17,36 @@ namespace MineSweeperLogic
             SizeX = sizeX;
             SizeY = sizeY;
             NumberOfMines = nrOfMines;
-            State = State;
             Bus = bus;
+            PosInfo = new PositionInfo[SizeX, SizeY];
+            ResetBoard();
         }
 
+        private IServiceBus Bus;
         public int PosX { get; private set; }
         public int PosY { get; private set; }
         public int SizeX { get; }
         public int SizeY { get; }
         public int NumberOfMines { get; }
         public GameState State { get; private set; }
-        public IServiceBus Bus { get; }
-        private string symb;
 
-        public PositionInfo PosInfo = new PositionInfo();
+        private PositionInfo[,] PosInfo;
+        private string symb;
 
         public PositionInfo GetCoordinate(int x, int y)
         {
-            if (x < 0 || y < 0) // Check for negative values
-                throw new IndexOutOfRangeException();
-
-            PosInfo.X = x;
-            PosInfo.Y = y;
-
-            if (PosInfo.Y >= SizeY)
-                throw new IndexOutOfRangeException();
-
-            if (PosInfo.X >= SizeX)
-                throw new IndexOutOfRangeException();
-
-
-            return PosInfo;
+            return PosInfo[x, y];
         }
 
         public void FlagCoordinate()
         {
 
-            if (!PosInfo.IsOpen)
+            if (!PosInfo[PosX, PosY].IsOpen)
             {
-                if (!PosInfo.IsFlagged)
-                    PosInfo.IsFlagged = true;
+                if (!PosInfo[PosX, PosY].IsFlagged)
+                    PosInfo[PosX, PosY].IsFlagged = true;
                 else
-                    PosInfo.IsFlagged = false;
+                    PosInfo[PosX, PosY].IsFlagged = false;
             }
 
 
@@ -67,16 +55,16 @@ namespace MineSweeperLogic
 
         public void ClickCoordinate()
         {
-            if (!PosInfo.IsOpen)
+            if (!PosInfo[PosX, PosY].IsOpen)
             {
-                if (PosInfo.HasMine)
+                if (PosInfo[PosX, PosY].HasMine)
                 {
                     State = GameState.Lost;
 
                 }
                 else
                 {
-                    PosInfo.IsOpen = true;
+                    PosInfo[PosX, PosY].IsOpen = true;
 
                 }
             }
@@ -85,9 +73,119 @@ namespace MineSweeperLogic
 
         public void ResetBoard()
         {
-            PosInfo = new PositionInfo();
+            // Creates epmty PosInfo
+            for (int y = 0; y < PosInfo.GetLength(1); y++)
+            {
+                for (int x = 0; x < PosInfo.GetLength(0); x++)
+                {
+                    PosInfo[x, y] = new PositionInfo();
+                    PosInfo[x, y].X = x;
+                    PosInfo[x, y].Y = y;
+                    PosInfo[x, y].HasMine = false;
+                    PosInfo[x, y].IsFlagged = false;
+                    PosInfo[x, y].IsOpen = false;
+                    PosInfo[x, y].NrOfNeighbours = 0;
+                }
+            }
 
+            // Add mines in random PosInfo
+            int currentMines = 0;
 
+            while (currentMines < NumberOfMines)
+            {
+                int randX = Bus.Next(SizeX);
+                int randY = Bus.Next(SizeY);
+                if (PosInfo[randX, randY].HasMine == false)
+                {
+                    PosInfo[randX, randY].HasMine = true;
+                    currentMines++;
+                }
+            }
+
+            // Calculates neighbours
+            for (int y = 0; y < PosInfo.GetLength(1); y++)
+            {
+                for (int x = 0; x < PosInfo.GetLength(0); x++)
+                {
+                    // Checks if position is in x = 0, y = 0 corner
+                    if (PosInfo[x, y].Y == 0 && PosInfo[x, y].X == 0)
+                    {
+                        if (PosInfo[x + 1, y].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x, y + 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x + 1, y + 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                    }
+                    else if (PosInfo[x, y].Y == 0 && PosInfo[x, y].X == (SizeX - 1))
+                    {
+                        if (PosInfo[x - 1, y].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x - 1, y + 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x, y + 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                    }
+                    else if (PosInfo[x, y].Y == (SizeY - 1) && PosInfo[x, y].X == 0)
+                    {
+                        if (PosInfo[x, y - 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x + 1, y - 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x + 1, y].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                    }
+                    else if (PosInfo[x, y].Y == (SizeY - 1) && PosInfo[x, y].X == (SizeX - 1))
+                    {
+                        if (PosInfo[x, y - 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x - 1, y].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x - 1, y - 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                    }
+                    else if (PosInfo[x, y].Y == 0)
+                    {
+                        if (PosInfo[x + 1, y].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x - 1, y + 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x - 1, y].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x, y + 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x + 1, y + 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                    }
+                    else if (PosInfo[x, y].Y == (SizeY - 1))
+                    {
+                        if (PosInfo[x - 1, y].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x + 1, y].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x - 1, y - 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x, y - 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x + 1, y - 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                    }
+                    else if (PosInfo[x, y].X == 0)
+                    {
+                        if (PosInfo[x, y + 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x + 1, y + 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x, y - 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x + 1, y - 1].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                        if (PosInfo[x + 1, y].HasMine)
+                            PosInfo[x, y].NrOfNeighbours++;
+                    }
+                }
+            }
+            State = GameState.Playing;
         }
 
         public void DrawBoard()
@@ -168,8 +266,5 @@ namespace MineSweeperLogic
 
         #endregion
 
-        #region CorrectPos
-
-        #endregion
     }
 }
