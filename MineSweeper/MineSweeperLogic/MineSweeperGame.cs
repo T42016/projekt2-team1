@@ -11,7 +11,7 @@ namespace MineSweeperLogic
 {
     public class MineSweeperGame
     {
-        
+
         public MineSweeperGame(int sizeX, int sizeY, int nrOfMines, IServiceBus bus)
         {
             SizeX = sizeX;
@@ -51,14 +51,35 @@ namespace MineSweeperLogic
 
         public void FlagCoordinate()
         {
-            if(!PosInfo.IsOpen)
-                PosInfo.IsFlagged = true;
+
+            if (!PosInfo.IsOpen)
+            {
+                if (!PosInfo.IsFlagged)
+                    PosInfo.IsFlagged = true;
+                else
+                    PosInfo.IsFlagged = false;
+            }
+
+
 
         }
 
         public void ClickCoordinate()
         {
-            
+            if (!PosInfo.IsOpen)
+            {
+                if (PosInfo.HasMine)
+                {
+                    State = GameState.Lost;
+
+                }
+                else
+                {
+                    PosInfo.IsOpen = true;
+
+                }
+            }
+
         }
 
         public void ResetBoard()
@@ -68,7 +89,7 @@ namespace MineSweeperLogic
 
         public void DrawBoard()
         {
-            
+
             for (int i = 0; i < SizeY; i++)
             {
                 for (int j = 0; j < SizeX; j++)
@@ -86,10 +107,11 @@ namespace MineSweeperLogic
                     }
                 }
 
-               Bus.WriteLine();
+                Bus.WriteLine();
             }
             Bus.Write("X ");
             Bus.Write("! ");
+
 
             if (PosInfo.IsFlagged)
                 Bus.Write("! ", ConsoleColor.DarkCyan);
@@ -107,8 +129,8 @@ namespace MineSweeperLogic
 
         public void MoveCursorDown()
         {
-            if(PosY < SizeY -1)
-            PosY++;
+            if (PosY < SizeY - 1)
+                PosY++;
         }
 
         public void MoveCursorLeft()
@@ -121,13 +143,14 @@ namespace MineSweeperLogic
 
         public void MoveCursorRight()
         {
-            if(PosX +1  < SizeX)
+            if (PosX + 1 < SizeX)
                 PosX++;
         }
 
         #endregion
 
         #region CorrectPos
+
         #endregion
     }
 }
