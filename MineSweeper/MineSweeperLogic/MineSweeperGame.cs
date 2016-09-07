@@ -29,16 +29,25 @@ namespace MineSweeperLogic
         public GameState State { get; private set; }
         public IServiceBus Bus { get; }
 
+        public PositionInfo PosInfo = new PositionInfo();
+
         public PositionInfo GetCoordinate(int x, int y)
         {
-            
-            return null;
+            if (x < 0 || y < 0) // Check for negative values
+                throw new IndexOutOfRangeException();
+
+            PosInfo.X = x;
+            PosInfo.Y = y;
 
 
+            return PosInfo;
         }
 
         public void FlagCoordinate()
         {
+            if(!PosInfo.IsOpen)
+                PosInfo.IsFlagged = true;
+
         }
 
         public void ClickCoordinate()
@@ -48,7 +57,7 @@ namespace MineSweeperLogic
 
         public void ResetBoard()
         {
-
+            PosInfo = new PositionInfo();
         }
 
         public void DrawBoard()
