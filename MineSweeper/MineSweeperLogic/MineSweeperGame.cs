@@ -39,6 +39,12 @@ namespace MineSweeperLogic
             PosInfo.X = x;
             PosInfo.Y = y;
 
+            if (PosInfo.Y >= SizeY)
+                throw new IndexOutOfRangeException();
+
+            if (PosInfo.X >= SizeX)
+                throw new IndexOutOfRangeException();
+
 
             return PosInfo;
         }
@@ -83,7 +89,10 @@ namespace MineSweeperLogic
                Bus.WriteLine();
             }
             Bus.Write("X ");
-            Bus.Write("! "); 
+            Bus.Write("! ");
+
+            if (PosInfo.IsFlagged)
+                Bus.Write("! ", ConsoleColor.DarkCyan);
         }
 
         #region MoveCursor Methods
